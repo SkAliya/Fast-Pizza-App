@@ -1,13 +1,13 @@
 // Test ID: IIDSAT
 
-import { useLoaderData } from "react-router-dom";
-import { getOrder } from "../../services/apiRestaurant";
+import { useLoaderData } from 'react-router-dom';
+import { getOrder } from '../../services/apiRestaurant';
 import {
   calcMinutesLeft,
   formatCurrency,
   formatDate,
-} from "../../utilities/helpers";
-import Footer from "../../ui/Footer";
+} from '../../utilities/helpers';
+import Footer from '../../ui/Footer';
 
 // const order = {
 //   id: "ABCDEF",
@@ -67,35 +67,79 @@ function Order() {
     cart,
   } = order;
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
+  console.log(cart);
 
   return (
-    <>
-    <div>
-      <div>
-        <h2>Status</h2>
+    <div className="mx-auto my-4 flex max-w-[750px] flex-col gap-5">
+      <div className="flex justify-between">
+        <h2 className="text-xl font-semibold">Order #{id} status</h2>
 
-        <div>
-          {priority && <span>Priority</span>}
-          <span>{status} order</span>
+        <div className="space-x-2">
+          {priority && (
+            <span className="w-max rounded-full bg-red-500/95 px-2 py-0.5 text-sm font-semibold tracking-wider text-slate-100 uppercase transition-colors duration-300">
+              Priority
+            </span>
+          )}
+          <span className="w-max rounded-full bg-green-500/95 px-2 py-0.5 text-sm font-semibold tracking-wider text-slate-100 uppercase transition-colors duration-300">
+            {status} order
+          </span>
         </div>
       </div>
 
-      <div>
-        <p>
+      <div className="flex items-center justify-between bg-stone-200 px-3.5 py-2.5">
+        <p className="font-medium">
           {deliveryIn >= 0
             ? `Only ${calcMinutesLeft(estimatedDelivery)} minutes left 😃`
-            : "Order should have arrived"}
+            : 'Order should have arrived'}
         </p>
-        <p>(Estimated delivery: {formatDate(estimatedDelivery)})</p>
+        <p className="text-xs text-stone-600">
+          (Estimated delivery: {formatDate(estimatedDelivery)})
+        </p>
+      </div>
+      <div>
+        <ul className="flex flex-col gap-1.5 overflow-auto">
+          {cart.map((item) => (
+            <Item item={item} key={item.pizzaId} />
+          ))}
+        </ul>
+        <div className="mt-3 h-[.5px] bg-stone-200"></div>
       </div>
 
-      <div>
-        <p>Price pizza: {formatCurrency(orderPrice)}</p>
-        {priority && <p>Price priority: {formatCurrency(priorityPrice)}</p>}
-        <p>To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}</p>
+      <div className="flex flex-col gap-1 bg-stone-200 px-3.5 py-2.5">
+        <p className="text-sm font-medium">
+          Price pizza: {formatCurrency(orderPrice)}
+        </p>
+        {priority && (
+          <p className="text-sm font-medium">
+            Price priority: {formatCurrency(priorityPrice)}
+          </p>
+        )}
+        <p className="font-bold">
+          To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
+        </p>
       </div>
+      <button className="w-max cursor-pointer self-end rounded-full bg-yellow-400 px-3 py-2 text-sm font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300">
+        make priority
+      </button>
     </div>
-    <Footer/>
+  );
+}
+
+function Item({ item }) {
+  return (
+    <>
+      <div className="my-0.5 h-[.5px] bg-stone-200"></div>
+      <li className="flex items-center justify-between text-sm">
+        <div>
+          <p>
+            <span className="font-semibold">{item.quantity}x</span> {item.name}
+          </p>
+          <p>{item.ingredients}</p>
+        </div>
+
+        <span className="text-sm font-semibold">€{item.totalPrice}.00</span>
+      </li>
+      {/* <div className="my-0.5 h-[.5px] bg-stone-200"></div> */}
     </>
   );
 }

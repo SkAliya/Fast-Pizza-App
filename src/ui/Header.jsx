@@ -1,11 +1,11 @@
-import SearchBar from "./SearchBar";
+import SearchBar from './SearchBar';
 
 function Header() {
   return (
-    <div className="flex justify-between items-center py-2 px-6  bg-yellow-400 text-stone-800 ">
-      <h1 className="text-stone-700
-       tracking-widest
-       uppercase">fast pizza co.</h1>
+    <div className="flex items-center justify-between bg-yellow-400 px-6 py-1.5 text-stone-800">
+      <h1 className="font-mono text-lg tracking-[.4em] text-stone-700 uppercase">
+        fast pizza co.
+      </h1>
       <SearchBar />
     </div>
   );
