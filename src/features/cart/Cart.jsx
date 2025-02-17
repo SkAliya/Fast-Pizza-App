@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import Footer from '../../ui/Footer';
 import EmptyCart from './EmptyCart';
+import { useSelector } from 'react-redux';
 
 const fakeCart = [
   {
@@ -27,8 +28,10 @@ const fakeCart = [
 ];
 
 function Cart() {
-  const cart = fakeCart;
   // const cart = [];
+  const cart = fakeCart;
+  const userName = useSelector((store) => store.user.userName);
+
   if (!cart.length) return <EmptyCart />;
   return (
     <div className="mx-auto my-2 flex max-w-[750px] flex-col gap-6">
@@ -39,7 +42,7 @@ function Cart() {
         &larr; Back to menu
       </Link>
       <div>
-        <h2 className="mb-3.5 text-xl font-semibold">Your cart, %NAME%</h2>
+        <h2 className="mb-3.5 text-xl font-semibold">Your cart, {userName}</h2>
         <ul className="flex flex-col gap-1.5">
           {cart.map((item) => (
             <Item item={item} key={item.pizzaId} />

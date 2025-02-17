@@ -1,8 +1,29 @@
+import { useDispatch, useSelector } from 'react-redux';
 import { formatCurrency } from '../../utilities/helpers';
+import { addNewPizza } from '../cart/cartSlice';
+import { useState } from 'react';
 
 function MenuItem({ pizza }) {
   //
   const { name, id, unitPrice, ingredients, soldOut, imageUrl } = pizza;
+  const [isInCart, setIsInCart] = useState(false);
+  const dispatch = useDispatch();
+  const cart = useSelector((store) => store.cart.cartArray);
+
+  function handleAddPizza() {
+    const newPizza = {
+      id,
+      name,
+      unitPrice,
+      quantity: 1,
+    };
+
+    dispatch(addNewPizza(newPizza));
+    setIsInCart(!isInCart);
+  }
+
+  // const isInCart = cart?.map((pizza) => pizza.id).includes(id);
+  // console.log(isInCart);
 
   return (
     <>
@@ -33,8 +54,11 @@ function MenuItem({ pizza }) {
             )}
           </div>
         </div>
-        {!soldOut && (
-          <button className="ml-auto w-max cursor-pointer self-end rounded-full bg-yellow-400 px-2.5 py-1.5 text-xs font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300">
+        {!soldOut && !isInCart && (
+          <button
+            className="ml-auto w-max cursor-pointer self-end rounded-full bg-yellow-400 px-2.5 py-1.5 text-xs font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300"
+            onClick={handleAddPizza}
+          >
             add to cart
           </button>
         )}

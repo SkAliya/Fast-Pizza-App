@@ -2,6 +2,7 @@
 import { Form, redirect, useActionData, useNavigation } from 'react-router-dom';
 import { createOrder } from '../../services/apiRestaurant';
 import Footer from '../../ui/Footer';
+import { useSelector } from 'react-redux';
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -39,6 +40,8 @@ function CreateOrder() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
   const errMssg = useActionData();
+  ///////////////////////////////////////////
+  const userName = useSelector((store) => store.user.userName);
 
   return (
     <div className="mx-auto my-2 max-w-[750px]">
@@ -54,6 +57,7 @@ function CreateOrder() {
               type="text"
               name="customer"
               required
+              defaultValue={userName}
               className="w-80 rounded-full border-1 border-stone-200 bg-white px-4 py-1.5 text-sm text-stone-800 caret-yellow-400 outline-yellow-400 transition-all duration-300 focus:outline-2"
             />
           </div>

@@ -118,9 +118,11 @@ function Order() {
           To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
-      <button className="w-max cursor-pointer self-end rounded-full bg-yellow-400 px-3 py-2 text-sm font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300">
-        make priority
-      </button>
+      {!priority && (
+        <button className="w-max cursor-pointer self-end rounded-full bg-yellow-400 px-3 py-2 text-sm font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300">
+          make priority
+        </button>
+      )}
     </div>
   );
 }

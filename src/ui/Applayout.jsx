@@ -11,7 +11,7 @@ function Applayout() {
   console.log(navigation);
 
   return (
-    <div className="">
+    <div className="grid h-dvh grid-rows-[auto_1fr_auto] gap-4.5">
       {isLoading && <Loader />}
       <Header />
 
