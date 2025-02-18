@@ -1,30 +1,41 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { formatCurrency } from '../../utilities/helpers';
-import { addNewPizza } from '../cart/cartSlice';
-import { useState } from 'react';
+import {
+  addNewPizza,
+  decreaseQuantity,
+  deletePizza,
+  increaseQuantity,
+} from '../cart/cartSlice';
 
 function MenuItem({ pizza }) {
   //
   const { name, id, unitPrice, ingredients, soldOut, imageUrl } = pizza;
-  const [isInCart, setIsInCart] = useState(false);
   const dispatch = useDispatch();
   const cart = useSelector((store) => store.cart.cartArray);
+  const currPizza = cart.find((pizza) => pizza.id === id);
 
   function handleAddPizza() {
-    const newPizza = {
+    let newPizza = {
       id,
       name,
       unitPrice,
       quantity: 1,
+      totalPrice: 1 * unitPrice,
     };
 
     dispatch(addNewPizza(newPizza));
-    setIsInCart(!isInCart);
   }
 
-  // const isInCart = cart?.map((pizza) => pizza.id).includes(id);
-  // console.log(isInCart);
+  function handleDeletePizza(id) {
+    dispatch(deletePizza(id));
+  }
 
+  function handleIncrementQuantity(id) {
+    dispatch(increaseQuantity(id));
+  }
+  function handleDecrementQuantity() {
+    dispatch(decreaseQuantity(id));
+  }
   return (
     <>
       <li className="flex items-start gap-3">
@@ -54,13 +65,40 @@ function MenuItem({ pizza }) {
             )}
           </div>
         </div>
-        {!soldOut && !isInCart && (
+        {/* {!soldOut && !isInCart && ( */}
+        {!soldOut && !currPizza && (
           <button
-            className="ml-auto w-max cursor-pointer self-end rounded-full bg-yellow-400 px-2.5 py-1.5 text-xs font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300"
+            className="relative ml-auto w-max cursor-pointer self-end rounded-full bg-yellow-400 px-2.5 py-1.5 text-xs font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300 active:top-[1px]"
             onClick={handleAddPizza}
           >
             add to cart
           </button>
+        )}
+        {currPizza && (
+          <div className="ml-auto flex items-end gap-4 self-end">
+            <div className="flex items-center gap-1.5">
+              <button
+                className="relative w-max cursor-pointer rounded-full bg-yellow-400 px-[12px] py-[5px] text-base font-semibold text-stone-800 transition-colors duration-300 hover:bg-yellow-300 active:top-[1px]"
+                // onClick={() => handleDecrementQuantity(id)}
+                onClick={handleDecrementQuantity}
+              >
+                -
+              </button>
+              <p className="text-sm font-semibold">{currPizza?.quantity}</p>
+              <button
+                className="relative w-max cursor-pointer rounded-full bg-yellow-400 px-[12px] py-[5px] text-base font-semibold text-stone-800 transition-colors duration-300 hover:bg-yellow-300 active:top-[1px]"
+                onClick={() => handleIncrementQuantity(id)}
+              >
+                +
+              </button>
+            </div>
+            <button
+              className="relative ml-auto w-max cursor-pointer rounded-full bg-yellow-400 px-2.5 py-1.5 text-xs font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300 active:top-[1px]"
+              onClick={() => handleDeletePizza(id)}
+            >
+              delete
+            </button>
+          </div>
         )}
       </li>
       <div className="last-of-type:bg- my-1.5 h-[.5px] bg-stone-200 last-of-type:bg-stone-100"></div>

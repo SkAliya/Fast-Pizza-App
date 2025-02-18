@@ -2,22 +2,27 @@ import { Outlet, useNavigation } from 'react-router-dom';
 import Header from '../ui/Header';
 
 // import Footer from '../ui/Footer';
-import Loader from '../ui/Loader';
+import Loader from './Loader';
+import { useSelector } from 'react-redux';
+import Footer from './Footer';
 
 function Applayout() {
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
   // const isLoading = true;
-  console.log(navigation);
+  const cart = useSelector((store) => store.cart.cartArray);
+  console.log(cart.length, cart);
 
   return (
     <div className="grid h-dvh grid-rows-[auto_1fr_auto] gap-4.5">
       {isLoading && <Loader />}
       <Header />
 
-      <main>
+      <main className="overflow-auto">
         <Outlet />
       </main>
+      {cart.length > 0 && <Footer />}
+      {/* <Footer /> */}
     </div>
   );
 }

@@ -1,13 +1,14 @@
 // Test ID: IIDSAT
 
-import { useLoaderData } from 'react-router-dom';
-import { getOrder } from '../../services/apiRestaurant';
+import { useFetcher, useLoaderData } from 'react-router-dom';
+import { getOrder, updateOrder } from '../../services/apiRestaurant';
 import {
   calcMinutesLeft,
   formatCurrency,
   formatDate,
 } from '../../utilities/helpers';
 import Footer from '../../ui/Footer';
+import { useEffect } from 'react';
 
 // const order = {
 //   id: "ABCDEF",
@@ -67,7 +68,15 @@ function Order() {
     cart,
   } = order;
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
-  console.log(cart);
+
+  const fetcher = useFetcher();
+
+  useEffect(
+    function () {
+      if (!fetcher.data && fetcher.state === 'idel') fetcher.load('/menu');
+    },
+    [fetcher],
+  );
 
   return (
     <div className="mx-auto my-4 flex max-w-[750px] flex-col gap-5">
@@ -99,7 +108,15 @@ function Order() {
       <div>
         <ul className="flex flex-col gap-1.5 overflow-auto">
           {cart.map((item) => (
-            <Item item={item} key={item.pizzaId} />
+            <Item
+              item={item}
+              key={item.pizzaId}
+              ingredients={
+                fetcher?.data?.find((pizza) => pizza.id === item.id)
+                  .ingredients ?? []
+              }
+              ingredientsLoading={fetcher.state === 'loading'}
+            />
           ))}
         </ul>
         <div className="mt-3 h-[.5px] bg-stone-200"></div>
@@ -118,16 +135,17 @@ function Order() {
           To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
-      {!priority && (
+      {/* {!priority && (
         <button className="w-max cursor-pointer self-end rounded-full bg-yellow-400 px-3 py-2 text-sm font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300">
           make priority
         </button>
-      )}
+      )} */}
+      {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }
 
-function Item({ item }) {
+function Item({ item, ingredients, ingredientsLoading }) {
   return (
     <>
       <div className="my-0.5 h-[.5px] bg-stone-200"></div>
@@ -136,7 +154,12 @@ function Item({ item }) {
           <p>
             <span className="font-semibold">{item.quantity}x</span> {item.name}
           </p>
-          <p>{item.ingredients}</p>
+          <p className="text-xs text-stone-300 italic">
+            {' '}
+            {ingredientsLoading
+              ? 'Loading ingredients...'
+              : ingredients.join(', ')}
+          </p>
         </div>
 
         <span className="text-sm font-semibold">€{item.totalPrice}.00</span>
@@ -148,7 +171,23 @@ function Item({ item }) {
 
 export default Order;
 
+function UpdateOrder({ order }) {
+  return (
+    <fetcher.Form method="PATCH">
+      <button className="w-max cursor-pointer self-end rounded-full bg-yellow-400 px-3 py-2 text-sm font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300">
+        Make priority
+      </button>
+    </fetcher.Form>
+  );
+}
+
 export async function loader({ params }) {
   const order = await getOrder(params.orderId);
   return order;
+}
+
+export async function action({ request, params }) {
+  const data = { priority: true };
+  await updateOrder(params.orderId, data);
+  return null;
 }

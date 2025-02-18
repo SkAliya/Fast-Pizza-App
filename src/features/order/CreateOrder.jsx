@@ -1,8 +1,12 @@
 // import { useState } from "react";
 import { Form, redirect, useActionData, useNavigation } from 'react-router-dom';
 import { createOrder } from '../../services/apiRestaurant';
-import Footer from '../../ui/Footer';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import { clearCart, getCartTotalPrice } from '../cart/cartSlice';
+import store from '../../store';
+import { fetchAddress } from '../user/userSlice';
+import { formatCurrency } from '../../utilities/helpers';
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -35,13 +39,25 @@ const fakeCart = [
 ];
 
 function CreateOrder() {
-  // const [withPriority, setWithPriority] = useState(false);
-  const cart = fakeCart;
+  // const cart = fakeCart;
+  const [withPriority, setWithPriority] = useState(false);
+  const cart = useSelector((store) => store.cart.cartArray);
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
   const errMssg = useActionData();
+  const dispatch = useDispatch();
   ///////////////////////////////////////////
-  const userName = useSelector((store) => store.user.userName);
+  const {
+    userName,
+    address,
+    position,
+    err: addressErr,
+    status: addressLoading,
+  } = useSelector((store) => store.user);
+  const isAddressLoading = addressLoading === 'loading';
+  // const totalPrice = cart.reduce((acc, curr) => acc + curr.totalPrice, 0);
+  const totalPrice = useSelector(getCartTotalPrice);
+  const priorityPrice = withPriority ? totalPrice * 0.2 : totalPrice;
 
   return (
     <div className="mx-auto my-2 max-w-[750px]">
@@ -72,33 +88,57 @@ function CreateOrder() {
               required
               className="w-80 rounded-full border-1 border-stone-200 bg-white px-4 py-1.5 text-sm text-stone-800 caret-yellow-400 outline-yellow-400 transition-all duration-300 focus:outline-2"
             />
-            {errMssg?.phone && <p>{errMssg.phone}</p>}
+            {errMssg?.phone && (
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {errMssg.phone}
+              </p>
+            )}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <label>Address:</label>
-          <div className="relative">
+          <div className="relative self-end">
             <input
               type="text"
               name="address"
               required
+              disabled={isAddressLoading}
+              defaultValue={address}
               className="w-80 rounded-full border-1 border-stone-200 bg-white px-4 py-1.5 text-sm text-stone-800 caret-yellow-400 outline-yellow-400 transition-all duration-300 focus:outline-2"
             />
-            <button className="absolute top-[3.4px] right-0.5 w-max cursor-pointer rounded-full bg-yellow-400 px-2 py-[10px] text-xs font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300">
-              get position
-            </button>
+            {!position.latitude &&
+              !position.longitude &&
+              addressErr !== '' &&
+              !address && (
+                <p className="absolute mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                  {addressErr}
+                </p>
+              )}
+
+            {!address && (
+              <button
+                disabled={isAddressLoading}
+                className="absolute top-[3.4px] right-0.5 w-max cursor-pointer rounded-full bg-yellow-400 px-2 py-[10px] text-xs font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(fetchAddress());
+                }}
+              >
+                get position
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="mt-2 flex items-center gap-2">
+        <div className="mt-8 flex items-center gap-2">
           <input
             type="checkbox"
             name="priority"
             id="priority"
             className="h-3.5 w-3.5 cursor-pointer border-none accent-yellow-400 outline-offset-3 outline-yellow-400 focus:outline-3"
-            // value={withPriority}
-            // onChange={(e) => setWithPriority(e.target.checked)}
+            value={withPriority}
+            onChange={(e) => setWithPriority(e.target.checked)}
           />
           <label htmlFor="priority" className="font-semibold">
             Want to yo give your order priority?
@@ -106,13 +146,24 @@ function CreateOrder() {
         </div>
 
         <input type="hidden" name="cart" value={JSON.stringify(cart)} />
+        <input
+          type="hidden"
+          name="position"
+          value={
+            position.latitude && position.longitude
+              ? `${position.latitude},${position.langitude}`
+              : ''
+          }
+        />
         <div className="mt-3">
           <button
-            disabled={isSubmitting}
+            disabled={isSubmitting || isAddressLoading}
             type="submit"
             className="w-max cursor-pointer rounded-full bg-yellow-400 px-3 py-2 text-sm font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300"
           >
-            {isSubmitting ? 'Placing order..' : 'Order now'}
+            {isSubmitting
+              ? 'Placing order..'
+              : `Order now ${formatCurrency(priorityPrice)}`}
           </button>
         </div>
       </Form>
@@ -144,7 +195,7 @@ export async function action({ request }) {
   const newOrder = await createOrder(order);
 
   // Do NOT overuse
-  // store.dispatch(clearCart());
+  store.dispatch(clearCart());
 
   return redirect(`/order/${newOrder.id}`);
 }
