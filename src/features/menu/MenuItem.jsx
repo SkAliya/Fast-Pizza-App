@@ -12,13 +12,13 @@ function MenuItem({ pizza }) {
   const { name, id, unitPrice, ingredients, soldOut, imageUrl } = pizza;
   const dispatch = useDispatch();
   const cart = useSelector((store) => store.cart.cartArray);
-  const currPizza = cart.find((pizza) => pizza.id === id);
+  const currPizza = cart.find((pizza) => pizza.pizzaId === id);
 
   function handleAddPizza() {
     let newPizza = {
-      id,
-      name,
-      unitPrice,
+      pizzaId: id,
+      name: name,
+      unitPrice: unitPrice,
       quantity: 1,
       totalPrice: 1 * unitPrice,
     };

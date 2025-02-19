@@ -45,18 +45,22 @@ function App() {
         ],
       },
     ],
-    // {
-    //   future: {
-    //     v7_relativeSplatPath: true,
-    //   },
-    // }
+    {
+      future: {
+        v7_relativeSplatPath: true,
+      },
+    },
   );
 
   return (
-    <RouterProvider router={router} />
-    // future={{
-    //   v7_startTransition: true,
-    // }}
+    <RouterProvider
+      router={router}
+      future={{
+        v7_startTransition: true,
+      }}
+    />
+    // <RouterProvider
+    //   router={router} />
   );
 }
 

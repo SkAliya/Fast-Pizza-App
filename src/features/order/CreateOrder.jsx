@@ -57,7 +57,10 @@ function CreateOrder() {
   const isAddressLoading = addressLoading === 'loading';
   // const totalPrice = cart.reduce((acc, curr) => acc + curr.totalPrice, 0);
   const totalPrice = useSelector(getCartTotalPrice);
-  const priorityPrice = withPriority ? totalPrice * 0.2 : totalPrice;
+  const priorityPrice = withPriority
+    ? totalPrice + totalPrice * 0.2
+    : totalPrice;
+  console.log(totalPrice, priorityPrice);
 
   return (
     <div className="mx-auto my-2 max-w-[750px]">
@@ -107,14 +110,11 @@ function CreateOrder() {
               defaultValue={address}
               className="w-80 rounded-full border-1 border-stone-200 bg-white px-4 py-1.5 text-sm text-stone-800 caret-yellow-400 outline-yellow-400 transition-all duration-300 focus:outline-2"
             />
-            {!position.latitude &&
-              !position.longitude &&
-              addressErr !== '' &&
-              !address && (
-                <p className="absolute mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
-                  {addressErr}
-                </p>
-              )}
+            {!position.latitude && !position.longitude && addressErr !== '' && (
+              <p className="absolute mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {addressErr}
+              </p>
+            )}
 
             {!address && (
               <button
@@ -151,7 +151,7 @@ function CreateOrder() {
           name="position"
           value={
             position.latitude && position.longitude
-              ? `${position.latitude},${position.langitude}`
+              ? `${position.latitude},${position.longitude}`
               : ''
           }
         />
@@ -175,7 +175,7 @@ function CreateOrder() {
 export async function action({ request }) {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
-
+  console.log(data);
   const order = {
     ...data,
     cart: JSON.parse(data.cart),
@@ -193,6 +193,7 @@ export async function action({ request }) {
 
   // If everything is okay, create new order and redirect
   const newOrder = await createOrder(order);
+  console.log(newOrder, newOrder.id);
 
   // Do NOT overuse
   store.dispatch(clearCart());

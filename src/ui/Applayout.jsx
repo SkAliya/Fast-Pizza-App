@@ -11,7 +11,7 @@ function Applayout() {
   const isLoading = navigation.state === 'loading';
   // const isLoading = true;
   const cart = useSelector((store) => store.cart.cartArray);
-  console.log(cart.length, cart);
+  // console.log(cart.length, cart);
 
   return (
     <div className="grid h-dvh grid-rows-[auto_1fr_auto] gap-4.5">

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { formatCurrency } from '../../utilities/helpers';
 
 const initialState = {
   cartArray: [],
@@ -10,14 +11,14 @@ const cartSlice = createSlice({
   reducers: {
     addNewPizza(state, action) {
       state.cartArray = state.cartArray
-        .map((pizza) => pizza.id)
-        .includes(action.payload.id)
+        .map((pizza) => pizza.pizzaId)
+        .includes(action.payload.pizzaId)
         ? state.cartArray
         : [...state.cartArray, action.payload];
     },
     deletePizza(state, action) {
       state.cartArray = state.cartArray.filter(
-        (pizza) => pizza.id !== action.payload,
+        (pizza) => pizza.pizzaId !== action.payload,
       );
     },
     increaseQuantity(state, action) {
@@ -27,7 +28,7 @@ const cartSlice = createSlice({
       //     : pizza,
       // );
       const currPizza = state.cartArray.find(
-        (pizza) => pizza.id === action.payload,
+        (pizza) => pizza.pizzaId === action.payload,
       );
       currPizza.quantity++;
       currPizza.totalPrice = currPizza.quantity * currPizza.unitPrice;
@@ -41,7 +42,7 @@ const cartSlice = createSlice({
       //     : pizza,
       // );
       const currPizza = state.cartArray.find(
-        (pizza) => pizza.id === action.payload,
+        (pizza) => pizza.pizzaId === action.payload,
       );
       currPizza.quantity--;
       currPizza.totalPrice = currPizza.quantity * currPizza.unitPrice;
@@ -63,6 +64,5 @@ export const {
 } = cartSlice.actions;
 export default cartSlice.reducer;
 
-export function getCartTotalPrice(state) {
-  return state.cart.cartArray.reduce((acc, curr) => acc + curr.totalPrice, 0);
-}
+export const getCartTotalPrice = (state) =>
+  state.cart.cartArray.reduce((acc, curr) => acc + curr.totalPrice, 0);

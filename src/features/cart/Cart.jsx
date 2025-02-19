@@ -2,7 +2,12 @@ import { Link } from 'react-router-dom';
 
 import EmptyCart from './EmptyCart';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearCart, deletePizza } from './cartSlice';
+import {
+  clearCart,
+  decreaseQuantity,
+  deletePizza,
+  increaseQuantity,
+} from './cartSlice';
 import { formatCurrency } from '../../utilities/helpers';
 
 // const fakeCart = [
@@ -53,7 +58,7 @@ function Cart() {
         <h2 className="mb-3.5 text-xl font-semibold">Your cart, {userName}</h2>
         <ul className="flex flex-col gap-1.5">
           {cart.map((item) => (
-            <Item item={item} key={item.id} />
+            <Item item={item} key={item.pizzaId} />
           ))}
         </ul>
       </div>
@@ -80,22 +85,36 @@ export default Cart;
 function Item({ item }) {
   const dispatch = useDispatch();
   console.log(item);
-  function handleDeletePizza(id) {
-    dispatch(deletePizza(id));
-  }
+  // function handleDeletePizza(id) {}
   return (
     <>
       <li className="flex items-center justify-between">
         <p className="">
           {item.quantity}x {item.name}
         </p>
-        <div className="space-x-4">
+        <div className="flex items-center gap-3">
           <span className="text-sm font-semibold">
             {formatCurrency(item.totalPrice)}
           </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              className="relative w-max cursor-pointer rounded-full bg-yellow-400 px-[12px] py-[5px] text-base font-semibold text-stone-800 transition-colors duration-300 hover:bg-yellow-300 active:top-[1px]"
+              // onClick={() => handleDecrementQuantity(id)}
+              onClick={() => dispatch(decreaseQuantity(item.pizzaId))}
+            >
+              -
+            </button>
+            <p className="text-sm font-semibold">{item.quantity}</p>
+            <button
+              className="relative w-max cursor-pointer rounded-full bg-yellow-400 px-[12px] py-[5px] text-base font-semibold text-stone-800 transition-colors duration-300 hover:bg-yellow-300 active:top-[1px]"
+              onClick={() => dispatch(increaseQuantity(item.pizzaId))}
+            >
+              +
+            </button>
+          </div>
           <button
             className="w-max cursor-pointer rounded-full bg-yellow-400 px-2.5 py-1.5 text-xs font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300"
-            onClick={() => handleDeletePizza(item.id)}
+            onClick={() => dispatch(deletePizza(item.pizzaId))}
           >
             delete
           </button>

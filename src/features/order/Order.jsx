@@ -112,7 +112,7 @@ function Order() {
               item={item}
               key={item.pizzaId}
               ingredients={
-                fetcher?.data?.find((pizza) => pizza.id === item.id)
+                fetcher?.data?.find((pizza) => pizza.id === item.pizzaId)
                   .ingredients ?? []
               }
               ingredientsLoading={fetcher.state === 'loading'}
@@ -162,7 +162,9 @@ function Item({ item, ingredients, ingredientsLoading }) {
           </p>
         </div>
 
-        <span className="text-sm font-semibold">€{item.totalPrice}.00</span>
+        <span className="text-sm font-semibold">
+          {formatCurrency(item.totalPrice)}
+        </span>
       </li>
       {/* <div className="my-0.5 h-[.5px] bg-stone-200"></div> */}
     </>
@@ -172,8 +174,9 @@ function Item({ item, ingredients, ingredientsLoading }) {
 export default Order;
 
 function UpdateOrder({ order }) {
+  const fetcher = useFetcher();
   return (
-    <fetcher.Form method="PATCH">
+    <fetcher.Form method="PATCH" className="self-end">
       <button className="w-max cursor-pointer self-end rounded-full bg-yellow-400 px-3 py-2 text-sm font-semibold tracking-wider text-stone-800 uppercase transition-colors duration-300 hover:bg-yellow-300">
         Make priority
       </button>
